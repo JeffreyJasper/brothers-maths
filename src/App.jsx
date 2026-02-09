@@ -47,17 +47,26 @@ function App() {
     }
     const moleTimer = setInterval(() => {
       setMoles(currentMoles => {
-          // Find an empty hole to place the new mole
-          const emptyHoles = currentMoles.map((mole, index) => mole.isVisible ? -1 : index).filter(index => index !== -1);
-          if (emptyHoles.length === 0) return currentMoles; // No empty holes
+        // Start with a clean slate, but preserve moles that are being whacked.
+        const newMoles = currentMoles.map(mole =>
+          mole.isWhacked ? mole : { isVisible: false, hasHair: false, isWhacked: false }
+        );
 
-          const newMoles = [...currentMoles];
-          const randomIndex = emptyHoles[Math.floor(Math.random() * emptyHoles.length)];
+        // Find a random hole that is not currently visible (and not being whacked).
+        const availableHoles = newMoles
+          .map((mole, index) => (mole.isVisible ? -1 : index))
+          .filter(index => index !== -1);
+
+        if (availableHoles.length > 0) {
+          const randomIndex = availableHoles[Math.floor(Math.random() * availableHoles.length)];
           const hasHair = Math.random() > 0.5;
           newMoles[randomIndex] = { isVisible: true, hasHair, isWhacked: false };
-          return newMoles;
+        }
+        
+        return newMoles;
       });
-    }, 1000); // Mole appears every second
+    }, 1000);
+
     return () => clearInterval(moleTimer);
   }, [isPlaying]);
 
@@ -76,14 +85,16 @@ function App() {
 
     const newMoles = [...moles];
     newMoles[index].isWhacked = true;
-    newMoles[index].isVisible = true; // Keep it visible for the animation
     setMoles(newMoles);
 
     // Hide the mole after the animation
     setTimeout(() => {
       setMoles(prevMoles => {
         const molesToUpdate = [...prevMoles];
-        molesToUpdate[index] = { isVisible: false, hasHair: false, isWhacked: false };
+        // Only update if the mole is still the one that was whacked
+        if (molesToUpdate[index].isWhacked) {
+          molesToUpdate[index] = { isVisible: false, hasHair: false, isWhacked: false };
+        }
         return molesToUpdate;
       });
     }, 400); // Corresponds to animation duration
