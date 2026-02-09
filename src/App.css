@@ -1,59 +1,64 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+
+.App {
   text-align: center;
+  font-family: sans-serif;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.info {
+  margin-bottom: 20px;
+  font-size: 1.2em;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.info span {
+  margin: 0 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.mole-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 10px;
+  justify-content: center;
 }
 
-.card {
-  padding: 2em;
+.mole {
+  width: 100px;
+  height: 100px;
+  border: 2px solid #333;
+  border-radius: 50%;
+  background-color: #a52a2a;
+  position: relative;
+  overflow: hidden;
 }
 
-.read-the-docs {
-  color: #888;
+.mole .mole-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4em;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.shining-title {
-  font-family: monospace;
-  animation: shine 2s linear infinite;
+.mole.visible .mole-image {
+  transform: translateY(0);
 }
 
-@keyframes shine {
-  0% {
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0073e6, 0 0 20px #0073e6, 0 0 25px #0073e6, 0 0 30px #0073e6, 0 0 35px #0073e6;
-  }
-  50% {
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6, 0 0 50px #ff4da6, 0 0 60px #ff4da6, 0 0 70px #ff4da6;
-  }
-  100% {
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0073e6, 0 0 20px #0073e6, 0 0 25px #0073e6, 0 0 30px #0073e6, 0 0 35px #0073e6;
-  }
+.mole:not(.visible) .mole-image {
+  transform: translateY(100%);
+}
+
+.game-over {
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
 }
