@@ -5,8 +5,8 @@ import './App.css';
 const HOLE_COUNT = 9;
 const GAME_DURATION = 60; // in seconds
 
-const Mole = ({ isVisible, hasHair, onClick }) => (
-  <div className={`mole ${isVisible ? 'visible' : ''}`} onClick={onClick}>
+const Mole = ({ isVisible, hasHair, isWhacked, onClick }) => (
+  <div className={`mole ${isVisible ? 'visible' : ''} ${isWhacked ? 'whacked' : ''}`} onClick={onClick}>
     {isVisible && (
       <div className={`mole-image ${hasHair ? 'mole-hairy' : 'mole-bald'}`}>
         {hasHair ? '👨' : '👨‍🦲'}
@@ -17,7 +17,7 @@ const Mole = ({ isVisible, hasHair, onClick }) => (
 
 function App() {
   const [moles, setMoles] = useState(
-    Array.from({ length: HOLE_COUNT }, () => ({ isVisible: false, hasHair: false }))
+    Array.from({ length: HOLE_COUNT }, () => ({ isVisible: false, hasHair: false, isWhacked: false }))
   );
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
@@ -46,19 +46,25 @@ function App() {
       return;
     }
     const moleTimer = setInterval(() => {
-      const newMoles = Array.from({ length: HOLE_COUNT }, () => ({ isVisible: false, hasHair: false }));
-      const randomIndex = Math.floor(Math.random() * HOLE_COUNT);
-      const hasHair = Math.random() > 0.5;
-      newMoles[randomIndex] = { isVisible: true, hasHair };
-      setMoles(newMoles);
-    }, 1000);
+      setMoles(currentMoles => {
+          // Find an empty hole to place the new mole
+          const emptyHoles = currentMoles.map((mole, index) => mole.isVisible ? -1 : index).filter(index => index !== -1);
+          if (emptyHoles.length === 0) return currentMoles; // No empty holes
+
+          const newMoles = [...currentMoles];
+          const randomIndex = emptyHoles[Math.floor(Math.random() * emptyHoles.length)];
+          const hasHair = Math.random() > 0.5;
+          newMoles[randomIndex] = { isVisible: true, hasHair, isWhacked: false };
+          return newMoles;
+      });
+    }, 1000); // Mole appears every second
     return () => clearInterval(moleTimer);
   }, [isPlaying]);
 
   // --- Event Handlers --- //
 
   const handleMoleClick = (index) => {
-    if (!isPlaying || !moles[index].isVisible) {
+    if (!isPlaying || !moles[index].isVisible || moles[index].isWhacked) {
       return;
     }
 
@@ -69,15 +75,25 @@ function App() {
     }
 
     const newMoles = [...moles];
-    newMoles[index] = { isVisible: false, hasHair: false };
+    newMoles[index].isWhacked = true;
+    newMoles[index].isVisible = true; // Keep it visible for the animation
     setMoles(newMoles);
+
+    // Hide the mole after the animation
+    setTimeout(() => {
+      setMoles(prevMoles => {
+        const molesToUpdate = [...prevMoles];
+        molesToUpdate[index] = { isVisible: false, hasHair: false, isWhacked: false };
+        return molesToUpdate;
+      });
+    }, 400); // Corresponds to animation duration
   };
 
   const startGame = () => {
     setScore(0);
     setTimeLeft(GAME_DURATION);
     setGameStarted(true);
-    setMoles(Array.from({ length: HOLE_COUNT }, () => ({ isVisible: false, hasHair: false })));
+    setMoles(Array.from({ length: HOLE_COUNT }, () => ({ isVisible: false, hasHair: false, isWhacked: false })));
   };
 
   // --- Render --- //
